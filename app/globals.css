@@ -241,7 +241,7 @@ body {
 .pos-select {
   font-size: 0.9em;
   margin: 0;
-  padding: 6px 4px 6px 12px;
+  padding: 6px 8px;
   border-radius: 8px;
   font-family: "メイリオ", sans-serif;
   font-weight: bold;
@@ -251,6 +251,8 @@ body {
   background: linear-gradient(145deg, #ffffff, #f5f5f5);
   cursor: pointer;
   transition: all 0.2s ease;
+  text-align: center;
+  text-align-last: center;
   min-width: 70px;
   max-width: 80px;
 }
