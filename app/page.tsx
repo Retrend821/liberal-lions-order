@@ -649,13 +649,7 @@ export default function Home() {
             </div>
 
             {/* ボタン */}
-            <div className="save-load-controls">
-              <button className="btn-save" onClick={() => saveData(true)}>💾 保存</button>
-              <button className="btn-load" onClick={loadData}>📥 読込</button>
-              <button className="btn-share" onClick={() => {
-                navigator.clipboard.writeText(window.location.href)
-                alert('URLをコピーしました！')
-              }}>🔗 共有URL</button>
+            <div style={{ textAlign: 'center', marginTop: '15px' }}>
               <button className="btn-clear" onClick={clearAll}>全削除</button>
             </div>
           </>
