@@ -148,23 +148,22 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 15px;
-  padding: 8px 12px;
+  border-radius: 10px;
+  padding: 4px 12px;
   font-size: 1em;
   font-weight: bold;
   flex-grow: 1;
   margin: 0;
-  color: #333;
-  background: linear-gradient(145deg, #ffffff, #f0f0f0);
-  border: 3px solid #c0c0c0;
-  box-shadow:
-    0 4px 8px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.8),
-    inset 0 -1px 0 rgba(0,0,0,0.1);
+  color: #000;
+  background: linear-gradient(to bottom, #ffffff 0%, #ffffff 50%, #f0f0f0 50%, #f0f0f0 100%);
+  border: 2px solid #c0c0c0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.3);
   position: relative;
   transition: all 0.2s ease;
   min-width: 100px;
-  max-width: 140px;
+  flex: 1;
+  height: 32px;
+  text-align: center;
 }
 
 .name-box-wide {
@@ -172,75 +171,97 @@ body {
   white-space: nowrap;
 }
 
-.name-box.pos-outfield { background: linear-gradient(145deg, #98fb98, #90ee90) !important; border-color: #7dd87d !important; }
-.name-box.pos-infield { background: linear-gradient(145deg, #ffd85a, #ffd700) !important; border-color: #e6c200 !important; }
-.name-box.pos-catcher { background: linear-gradient(145deg, #87ceeb, #87cefa) !important; border-color: #6bb6e6 !important; }
-.name-box.pos-pitcher { background: linear-gradient(145deg, #ff9999, #ff7f7f) !important; border-color: #ff6666 !important; }
-.name-box.pos-dh { background: linear-gradient(145deg, #d8b3ff, #c084fc) !important; border-color: #b366ff !important; }
+/* パワプロ本家風の色 - 上半分にハイライト */
+.name-box.pos-outfield { background: linear-gradient(to bottom, #8fff8f 0%, #8fff8f 50%, #6de86d 50%, #6de86d 100%) !important; border: 2px solid #5cd45c !important; }
+.name-box.pos-infield { background: linear-gradient(to bottom, #fff27a 0%, #fff27a 50%, #ffe847 50%, #ffe847 100%) !important; border: 2px solid #e6d03f !important; }
+.name-box.pos-catcher { background: linear-gradient(to bottom, #8ae4ff 0%, #8ae4ff 50%, #5bd4ff 50%, #5bd4ff 100%) !important; border: 2px solid #4ac4ef !important; }
+.name-box.pos-pitcher { background: linear-gradient(to bottom, #ff9e9e 0%, #ff9e9e 50%, #ff7a7a 50%, #ff7a7a 100%) !important; border: 2px solid #e86a6a !important; }
+.name-box.pos-dh { background: linear-gradient(to bottom, #d8b3ff 0%, #d8b3ff 50%, #c084fc 50%, #c084fc 100%) !important; border: 2px solid #b366ff !important; }
 
 .face-box {
-  width: 32px;
-  height: 32px;
-  font-size: 1.3em;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0;
-  background: linear-gradient(145deg, #ffffff, #f8f8f8);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.8);
+  background: transparent;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   flex-shrink: 0;
 }
 
+.face-box svg {
+  display: block;
+}
+
 .face-dropdown {
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   background: white;
-  border: 2px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border: 3px solid #3b82f6;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   display: none;
-  z-index: 1000;
-  padding: 8px;
-  margin-top: 5px;
+  z-index: 10000;
+  padding: 12px;
 }
 
 .face-dropdown.show {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  flex-direction: row;
+  gap: 10px;
 }
 
 .face-option {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.4em;
-  background: linear-gradient(145deg, #ffffff, #f8f8f8);
+  background: #f8f8f8;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: all 0.2s ease;
-  border: 2px solid;
+  border: 3px solid #ddd;
 }
 
-.face-excellent { background: radial-gradient(circle, #ff69b4, #ff1493) !important; border-color: #ff1493 !important; }
-.face-good { background: radial-gradient(circle, #ff6b6b, #ff4757) !important; border-color: #ff4757 !important; }
-.face-normal { background: radial-gradient(circle, #feca57, #ff9ff3) !important; border-color: #ff6348 !important; }
-.face-bad { background: radial-gradient(circle, #74b9ff, #0984e3) !important; border-color: #0984e3 !important; }
-.face-terrible { background: radial-gradient(circle, #a29bfe, #6c5ce7) !important; border-color: #6c5ce7 !important; }
+.face-option:hover {
+  transform: scale(1.15);
+  background: #e0e0e0;
+  border-color: #3b82f6;
+}
+
+.face-option svg {
+  width: 36px;
+  height: 36px;
+}
+
+/* セレクタオーバーレイ */
+.selector-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9998;
+}
+
+.selector-overlay.show {
+  display: block;
+}
 
 .pos-select {
   font-size: 0.9em;
   margin: 0;
-  padding: 6px 8px;
+  padding: 4px 8px;
   border-radius: 8px;
   font-family: "メイリオ", sans-serif;
   font-weight: bold;
@@ -252,8 +273,10 @@ body {
   transition: all 0.2s ease;
   text-align: center;
   text-align-last: center;
-  min-width: 70px;
-  max-width: 80px;
+  min-width: 60px;
+  max-width: 65px;
+  height: 38px;
+  box-sizing: border-box;
 }
 
 .btn {

@@ -42,30 +42,85 @@ type OrderData = {
   gameState: GameState
 }
 
-const POSITION_STYLES: { [key: string]: { background: string, borderColor: string } } = {
-  "中": { background: 'linear-gradient(145deg, #98fb98, #90ee90)', borderColor: '#7dd87d' },
-  "左": { background: 'linear-gradient(145deg, #98fb98, #90ee90)', borderColor: '#7dd87d' },
-  "右": { background: 'linear-gradient(145deg, #98fb98, #90ee90)', borderColor: '#7dd87d' },
-  "二": { background: 'linear-gradient(145deg, #ffd85a, #ffd700)', borderColor: '#e6c200' },
-  "三": { background: 'linear-gradient(145deg, #ffd85a, #ffd700)', borderColor: '#e6c200' },
-  "一": { background: 'linear-gradient(145deg, #ffd85a, #ffd700)', borderColor: '#e6c200' },
-  "遊": { background: 'linear-gradient(145deg, #ffd85a, #ffd700)', borderColor: '#e6c200' },
-  "捕": { background: 'linear-gradient(145deg, #87ceeb, #87cefa)', borderColor: '#6bb6e6' },
-  "投": { background: 'linear-gradient(145deg, #ff9999, #ff7f7f)', borderColor: '#ff6666' },
-  "DH": { background: 'linear-gradient(145deg, #d8b3ff, #c084fc)', borderColor: '#b366ff' }
+const POSITION_STYLES: { [key: string]: { background: string, border: string } } = {
+  "中": { background: 'linear-gradient(to bottom, #8fff8f 0%, #8fff8f 50%, #6de86d 50%, #6de86d 100%)', border: '2px solid #5cd45c' },
+  "左": { background: 'linear-gradient(to bottom, #8fff8f 0%, #8fff8f 50%, #6de86d 50%, #6de86d 100%)', border: '2px solid #5cd45c' },
+  "右": { background: 'linear-gradient(to bottom, #8fff8f 0%, #8fff8f 50%, #6de86d 50%, #6de86d 100%)', border: '2px solid #5cd45c' },
+  "二": { background: 'linear-gradient(to bottom, #fff27a 0%, #fff27a 50%, #ffe847 50%, #ffe847 100%)', border: '2px solid #e6d03f' },
+  "三": { background: 'linear-gradient(to bottom, #fff27a 0%, #fff27a 50%, #ffe847 50%, #ffe847 100%)', border: '2px solid #e6d03f' },
+  "一": { background: 'linear-gradient(to bottom, #fff27a 0%, #fff27a 50%, #ffe847 50%, #ffe847 100%)', border: '2px solid #e6d03f' },
+  "遊": { background: 'linear-gradient(to bottom, #fff27a 0%, #fff27a 50%, #ffe847 50%, #ffe847 100%)', border: '2px solid #e6d03f' },
+  "捕": { background: 'linear-gradient(to bottom, #8ae4ff 0%, #8ae4ff 50%, #5bd4ff 50%, #5bd4ff 100%)', border: '2px solid #4ac4ef' },
+  "投": { background: 'linear-gradient(to bottom, #ff9e9e 0%, #ff9e9e 50%, #ff7a7a 50%, #ff7a7a 100%)', border: '2px solid #e86a6a' },
+  "DH": { background: 'linear-gradient(to bottom, #d8b3ff 0%, #d8b3ff 50%, #c084fc 50%, #c084fc 100%)', border: '2px solid #b366ff' }
+}
+
+// パワプロ本家風の顔アイコンSVG
+const getConditionFace = (type: string, uniqueId: string = '') => {
+  const id = uniqueId || Math.random().toString(36).substr(2, 9);
+  const faces: { [key: string]: string } = {
+    'excellent': `<svg viewBox="0 0 32 32" width="28" height="28">
+      <defs><linearGradient id="grad_${id}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f8a0c8"/><stop offset="100%" stop-color="#e870a8"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="15" fill="url(#grad_${id})"/>
+      <ellipse cx="16" cy="10" rx="12" ry="6" fill="rgba(255,255,255,0.35)"/>
+      <line x1="11" y1="9" x2="11" y2="15" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <line x1="21" y1="9" x2="21" y2="15" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="16" cy="21" rx="7" ry="5" fill="#333"/>
+      <ellipse cx="16" cy="20" rx="5" ry="2" fill="#fff"/>
+      <ellipse cx="16" cy="24" rx="2" ry="2" fill="#e85050"/>
+    </svg>`,
+    'good': `<svg viewBox="0 0 32 32" width="28" height="28">
+      <defs><linearGradient id="grad_${id}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ff7070"/><stop offset="100%" stop-color="#e84848"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="15" fill="url(#grad_${id})"/>
+      <ellipse cx="16" cy="10" rx="12" ry="6" fill="rgba(255,255,255,0.35)"/>
+      <line x1="11" y1="9" x2="11" y2="15" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <line x1="21" y1="9" x2="21" y2="15" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <path d="M9 20 Q16 26 23 20" stroke="#222" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>`,
+    'normal': `<svg viewBox="0 0 32 32" width="28" height="28">
+      <defs><linearGradient id="grad_${id}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffe040"/><stop offset="100%" stop-color="#f0a020"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="15" fill="url(#grad_${id})"/>
+      <ellipse cx="16" cy="10" rx="12" ry="6" fill="rgba(255,255,255,0.35)"/>
+      <line x1="11" y1="9" x2="11" y2="15" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <line x1="21" y1="9" x2="21" y2="15" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <line x1="10" y1="21" x2="22" y2="21" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+    </svg>`,
+    'bad': `<svg viewBox="0 0 32 32" width="28" height="28">
+      <defs><linearGradient id="grad_${id}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#80d0ff"/><stop offset="100%" stop-color="#50a8e0"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="15" fill="url(#grad_${id})"/>
+      <ellipse cx="16" cy="10" rx="12" ry="6" fill="rgba(255,255,255,0.35)"/>
+      <line x1="9" y1="15" x2="13" y2="11" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <line x1="23" y1="15" x2="19" y2="11" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <path d="M9 23 Q16 18 23 23" stroke="#222" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>`,
+    'terrible': `<svg viewBox="0 0 32 32" width="28" height="28">
+      <defs><linearGradient id="grad_${id}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#b080d0"/><stop offset="100%" stop-color="#8050a8"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="15" fill="url(#grad_${id})"/>
+      <ellipse cx="16" cy="10" rx="12" ry="6" fill="rgba(255,255,255,0.35)"/>
+      <line x1="9" y1="15" x2="13" y2="11" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <line x1="23" y1="15" x2="19" y2="11" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="16" cy="22" rx="5" ry="4" fill="#333"/>
+    </svg>`
+  };
+  return faces[type] || faces['normal'];
+}
+
+// 絵文字から新形式への変換
+const convertCondition = (emoji: string): string => {
+  const mapping: { [key: string]: string } = { '🤩': 'excellent', '😊': 'good', '😐': 'normal', '😰': 'bad', '🤢': 'terrible' };
+  return mapping[emoji] || emoji;
 }
 
 const FACE_OPTIONS = [
-  { emoji: '🤩', label: '絶好調', class: 'face-excellent' },
-  { emoji: '😊', label: '好調', class: 'face-good' },
-  { emoji: '😐', label: 'ふつう', class: 'face-normal' },
-  { emoji: '😰', label: '不調', class: 'face-bad' },
-  { emoji: '🤢', label: '絶不調', class: 'face-terrible' }
+  { key: 'excellent', label: '絶好調' },
+  { key: 'good', label: '好調' },
+  { key: 'normal', label: 'ふつう' },
+  { key: 'bad', label: '不調' },
+  { key: 'terrible', label: '絶不調' }
 ]
 
 const getFaceClass = (emoji: string) => {
-  const face = FACE_OPTIONS.find(f => f.emoji === emoji)
-  return face ? face.class : ''
+  return ''
 }
 
 export default function Home() {
@@ -486,6 +541,7 @@ export default function Home() {
   return (
     <div onClick={() => setOpenFaceDropdown(null)}>
       {toast && <div className="save-toast">{toast}</div>}
+      <div className={`selector-overlay ${openFaceDropdown ? 'show' : ''}`} onClick={() => setOpenFaceDropdown(null)} />
 
       {/* ヘッダー */}
       <div className="team-header">
@@ -574,21 +630,19 @@ export default function Home() {
                     </div>
                     <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
                       <div
-                        className={`face-box ${getFaceClass(player.face)}`}
+                        className="face-box"
                         onClick={() => setOpenFaceDropdown(openFaceDropdown === `player-${index}` ? null : `player-${index}`)}
-                      >
-                        {player.face}
-                      </div>
+                        dangerouslySetInnerHTML={{ __html: getConditionFace(convertCondition(player.face), `player_${index}_main`) }}
+                      />
                       <div className={`face-dropdown ${openFaceDropdown === `player-${index}` ? 'show' : ''}`}>
-                        {FACE_OPTIONS.map(face => (
+                        {FACE_OPTIONS.map((face, i) => (
                           <div
-                            key={face.emoji}
-                            className={`face-option ${face.class}`}
-                            onClick={() => changeFace(index, face.emoji, 'player')}
+                            key={face.key}
+                            className="face-option"
+                            onClick={() => changeFace(index, face.key, 'player')}
                             title={face.label}
-                          >
-                            {face.emoji}
-                          </div>
+                            dangerouslySetInnerHTML={{ __html: getConditionFace(face.key, `player_${index}_opt_${i}`) }}
+                          />
                         ))}
                       </div>
                     </div>
@@ -644,20 +698,19 @@ export default function Home() {
                     <div className="name-box name-box-wide pos-pitcher">{player.name}</div>
                     <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
                       <div
-                        className={`face-box ${getFaceClass(player.face)}`}
+                        className="face-box"
                         onClick={() => setOpenFaceDropdown(openFaceDropdown === `pitcher-${index}` ? null : `pitcher-${index}`)}
-                      >
-                        {player.face}
-                      </div>
+                        dangerouslySetInnerHTML={{ __html: getConditionFace(convertCondition(player.face), `pitcher_${index}_main`) }}
+                      />
                       <div className={`face-dropdown ${openFaceDropdown === `pitcher-${index}` ? 'show' : ''}`}>
-                        {FACE_OPTIONS.map(face => (
+                        {FACE_OPTIONS.map((face, i) => (
                           <div
-                            key={face.emoji}
-                            className={`face-option ${face.class}`}
-                            onClick={() => changeFace(index, face.emoji, 'pitcher')}
-                          >
-                            {face.emoji}
-                          </div>
+                            key={face.key}
+                            className="face-option"
+                            onClick={() => changeFace(index, face.key, 'pitcher')}
+                            title={face.label}
+                            dangerouslySetInnerHTML={{ __html: getConditionFace(face.key, `pitcher_${index}_opt_${i}`) }}
+                          />
                         ))}
                       </div>
                     </div>
@@ -707,20 +760,19 @@ export default function Home() {
                     <div className="name-box name-box-wide pos-catcher">{player.name}</div>
                     <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
                       <div
-                        className={`face-box ${getFaceClass(player.face)}`}
+                        className="face-box"
                         onClick={() => setOpenFaceDropdown(openFaceDropdown === `catcher-${index}` ? null : `catcher-${index}`)}
-                      >
-                        {player.face}
-                      </div>
+                        dangerouslySetInnerHTML={{ __html: getConditionFace(convertCondition(player.face), `catcher_${index}_main`) }}
+                      />
                       <div className={`face-dropdown ${openFaceDropdown === `catcher-${index}` ? 'show' : ''}`}>
-                        {FACE_OPTIONS.map(face => (
+                        {FACE_OPTIONS.map((face, i) => (
                           <div
-                            key={face.emoji}
-                            className={`face-option ${face.class}`}
-                            onClick={() => changeFace(index, face.emoji, 'catcher')}
-                          >
-                            {face.emoji}
-                          </div>
+                            key={face.key}
+                            className="face-option"
+                            onClick={() => changeFace(index, face.key, 'catcher')}
+                            title={face.label}
+                            dangerouslySetInnerHTML={{ __html: getConditionFace(face.key, `catcher_${index}_opt_${i}`) }}
+                          />
                         ))}
                       </div>
                     </div>
@@ -770,20 +822,19 @@ export default function Home() {
                     <div className="name-box name-box-wide" style={{ background: 'linear-gradient(145deg, #fce4ec, #f8bbd9)', borderColor: '#f48fb1' }}>{manager.name}</div>
                     <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
                       <div
-                        className={`face-box ${getFaceClass(manager.face)}`}
+                        className="face-box"
                         onClick={() => setOpenFaceDropdown(openFaceDropdown === `manager-${index}` ? null : `manager-${index}`)}
-                      >
-                        {manager.face}
-                      </div>
+                        dangerouslySetInnerHTML={{ __html: getConditionFace(convertCondition(manager.face), `manager_${index}_main`) }}
+                      />
                       <div className={`face-dropdown ${openFaceDropdown === `manager-${index}` ? 'show' : ''}`}>
-                        {FACE_OPTIONS.map(face => (
+                        {FACE_OPTIONS.map((face, i) => (
                           <div
-                            key={face.emoji}
-                            className={`face-option ${face.class}`}
-                            onClick={() => changeFace(index, face.emoji, 'manager')}
-                          >
-                            {face.emoji}
-                          </div>
+                            key={face.key}
+                            className="face-option"
+                            onClick={() => changeFace(index, face.key, 'manager')}
+                            title={face.label}
+                            dangerouslySetInnerHTML={{ __html: getConditionFace(face.key, `manager_${index}_opt_${i}`) }}
+                          />
                         ))}
                       </div>
                     </div>
