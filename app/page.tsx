@@ -548,9 +548,9 @@ export default function Home() {
                     onClick={() => handlePlayerSelect(index)}
                     style={{
                       cursor: 'pointer',
-                      border: selectedPlayer === index ? '3px solid #ff6600' : 'none',
-                      borderRadius: '8px',
-                      background: selectedPlayer === index ? 'rgba(255, 102, 0, 0.1)' : 'transparent'
+                      outline: selectedPlayer === index ? '3px solid #ff6600' : 'none',
+                      outlineOffset: '-3px',
+                      borderRadius: '8px'
                     }}
                   >
                     <div className="number">{index + 1}</div>
@@ -619,9 +619,9 @@ export default function Home() {
                     onClick={() => handlePitcherSelect(index)}
                     style={{
                       cursor: 'pointer',
-                      border: selectedPitcher === index ? '3px solid #ff6600' : 'none',
-                      borderRadius: '8px',
-                      background: selectedPitcher === index ? 'rgba(255, 102, 0, 0.1)' : 'rgba(240, 240, 240, 0.5)'
+                      outline: selectedPitcher === index ? '3px solid #ff6600' : 'none',
+                      outlineOffset: '-3px',
+                      borderRadius: '8px'
                     }}
                   >
                     <div className="number" style={{ background: 'linear-gradient(145deg, #666666, #444444)' }}>P{index + 1}</div>
@@ -682,9 +682,9 @@ export default function Home() {
                     onClick={() => handleCatcherSelect(index)}
                     style={{
                       cursor: 'pointer',
-                      border: selectedCatcher === index ? '3px solid #ff6600' : 'none',
-                      borderRadius: '8px',
-                      background: selectedCatcher === index ? 'rgba(255, 102, 0, 0.1)' : 'rgba(240, 240, 240, 0.5)'
+                      outline: selectedCatcher === index ? '3px solid #ff6600' : 'none',
+                      outlineOffset: '-3px',
+                      borderRadius: '8px'
                     }}
                   >
                     <div className="number" style={{ background: 'linear-gradient(145deg, #666666, #444444)' }}>C{index + 1}</div>
@@ -745,9 +745,9 @@ export default function Home() {
                     onClick={() => handleManagerSelect(index)}
                     style={{
                       cursor: 'pointer',
-                      border: selectedManager === index ? '3px solid #ff6600' : 'none',
-                      borderRadius: '8px',
-                      background: selectedManager === index ? 'rgba(255, 102, 0, 0.1)' : 'rgba(240, 240, 240, 0.5)'
+                      outline: selectedManager === index ? '3px solid #ff6600' : 'none',
+                      outlineOffset: '-3px',
+                      borderRadius: '8px'
                     }}
                   >
                     <div className="number" style={{ background: 'linear-gradient(145deg, #e91e63, #c2185b)' }}>M{index + 1}</div>
