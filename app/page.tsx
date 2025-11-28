@@ -42,10 +42,17 @@ type OrderData = {
   gameState: GameState
 }
 
-const POSITION_CLASSES: { [key: string]: string } = {
-  "中": "pos-outfield", "左": "pos-outfield", "右": "pos-outfield",
-  "二": "pos-infield", "三": "pos-infield", "一": "pos-infield", "遊": "pos-infield",
-  "捕": "pos-catcher", "投": "pos-pitcher", "DH": "pos-dh"
+const POSITION_STYLES: { [key: string]: { background: string, borderColor: string } } = {
+  "中": { background: 'linear-gradient(145deg, #98fb98, #90ee90)', borderColor: '#7dd87d' },
+  "左": { background: 'linear-gradient(145deg, #98fb98, #90ee90)', borderColor: '#7dd87d' },
+  "右": { background: 'linear-gradient(145deg, #98fb98, #90ee90)', borderColor: '#7dd87d' },
+  "二": { background: 'linear-gradient(145deg, #ffd85a, #ffd700)', borderColor: '#e6c200' },
+  "三": { background: 'linear-gradient(145deg, #ffd85a, #ffd700)', borderColor: '#e6c200' },
+  "一": { background: 'linear-gradient(145deg, #ffd85a, #ffd700)', borderColor: '#e6c200' },
+  "遊": { background: 'linear-gradient(145deg, #ffd85a, #ffd700)', borderColor: '#e6c200' },
+  "捕": { background: 'linear-gradient(145deg, #87ceeb, #87cefa)', borderColor: '#6bb6e6' },
+  "投": { background: 'linear-gradient(145deg, #ff9999, #ff7f7f)', borderColor: '#ff6666' },
+  "DH": { background: 'linear-gradient(145deg, #d8b3ff, #c084fc)', borderColor: '#b366ff' }
 }
 
 const FACE_OPTIONS = [
@@ -559,7 +566,10 @@ export default function Home() {
                     }}
                   >
                     <div className="number">{index + 1}</div>
-                    <div className={`name-box name-box-wide ${POSITION_CLASSES[player.pos] || ''}`}>
+                    <div
+                      className="name-box name-box-wide"
+                      style={POSITION_STYLES[player.pos] || {}}
+                    >
                       {player.name}
                     </div>
                     <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
@@ -850,7 +860,7 @@ export default function Home() {
                   <div key={index} className="player-section">
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px', fontWeight: 'bold', fontSize: '1.1em', flexWrap: 'wrap', gap: '8px' }}>
                       <div className="number" style={{ marginRight: '10px' }}>{index + 1}</div>
-                      <div className={`name-box ${POSITION_CLASSES[player.pos] || ''}`} style={{ marginRight: '15px', minWidth: '100px', maxWidth: '120px' }}>
+                      <div className="name-box" style={{ marginRight: '15px', minWidth: '100px', maxWidth: '120px', ...(POSITION_STYLES[player.pos] || {}) }}>
                         {player.name}
                       </div>
                       <div style={{ color: '#666', fontSize: '0.9em' }}>
