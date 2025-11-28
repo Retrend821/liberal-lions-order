@@ -58,10 +58,9 @@ body {
   justify-content: center;
   margin: 10px auto;
   width: 380px;
-  background: white;
+  background: transparent;
   border-radius: 10px 10px 0 0;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .tab {
@@ -87,7 +86,7 @@ body {
 .order-box {
   background: white;
   border: 4px solid #0044CC;
-  border-radius: 0 0 15px 15px;
+  border-radius: 15px;
   width: 380px;
   margin: 0 auto 10px auto;
   padding: 10px;
