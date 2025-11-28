@@ -175,11 +175,11 @@ body {
   white-space: nowrap;
 }
 
-.pos-outfield { background: linear-gradient(145deg, #98fb98, #90ee90) !important; border-color: #7dd87d !important; }
-.pos-infield { background: linear-gradient(145deg, #ffd85a, #ffd700) !important; border-color: #e6c200 !important; }
-.pos-catcher { background: linear-gradient(145deg, #87ceeb, #87cefa) !important; border-color: #6bb6e6 !important; }
-.pos-pitcher { background: linear-gradient(145deg, #ff9999, #ff7f7f) !important; border-color: #ff6666 !important; }
-.pos-dh { background: linear-gradient(145deg, #d8b3ff, #c084fc) !important; border-color: #b366ff !important; }
+.name-box.pos-outfield { background: linear-gradient(145deg, #98fb98, #90ee90) !important; border-color: #7dd87d !important; }
+.name-box.pos-infield { background: linear-gradient(145deg, #ffd85a, #ffd700) !important; border-color: #e6c200 !important; }
+.name-box.pos-catcher { background: linear-gradient(145deg, #87ceeb, #87cefa) !important; border-color: #6bb6e6 !important; }
+.name-box.pos-pitcher { background: linear-gradient(145deg, #ff9999, #ff7f7f) !important; border-color: #ff6666 !important; }
+.name-box.pos-dh { background: linear-gradient(145deg, #d8b3ff, #c084fc) !important; border-color: #b366ff !important; }
 
 .face-box {
   width: 32px;
