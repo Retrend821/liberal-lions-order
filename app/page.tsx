@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
+import { RealtimeChannel } from '@supabase/supabase-js'
 
 type Player = {
   name: string
@@ -73,9 +74,62 @@ export default function Home() {
   const [toast, setToast] = useState<string | null>(null)
   const [openFaceDropdown, setOpenFaceDropdown] = useState<string | null>(null)
   const [dataId, setDataId] = useState<string | null>(null)
+  const [syncStatus, setSyncStatus] = useState<'connected' | 'disconnected'>('disconnected')
+  const channelRef = useRef<RealtimeChannel | null>(null)
+  const isLocalUpdate = useRef(false)
 
   useEffect(() => {
     loadData()
+
+    // リアルタイム同期のセットアップ
+    const channel = supabase
+      .channel('order_data_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'order_data'
+        },
+        (payload) => {
+          // 自分の更新は無視
+          if (isLocalUpdate.current) {
+            isLocalUpdate.current = false
+            return
+          }
+
+          console.log('リアルタイム更新を受信:', payload)
+          const newData = payload.new as { id: string; data: OrderData }
+          if (newData && newData.data) {
+            setPlayers(newData.data.players || [])
+            setBenchPitchers(newData.data.benchPitchers || [])
+            setBenchCatchers(newData.data.benchCatchers || [])
+            setGameState(newData.data.gameState || {
+              inning: 1,
+              isTopHalf: true,
+              currentBatterIndex: 0,
+              battingStats: {}
+            })
+            showToast('🔄 データが更新されました')
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('リアルタイム接続状態:', status)
+        if (status === 'SUBSCRIBED') {
+          setSyncStatus('connected')
+        } else {
+          setSyncStatus('disconnected')
+        }
+      })
+
+    channelRef.current = channel
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+      }
+    }
   }, [])
 
   const showToast = (message: string) => {
@@ -112,6 +166,9 @@ export default function Home() {
   const saveData = async (showMessage = true) => {
     if (!dataId) return
 
+    // 自分の更新をマーク
+    isLocalUpdate.current = true
+
     const orderData: OrderData = {
       players,
       benchPitchers,
@@ -126,6 +183,7 @@ export default function Home() {
 
     if (error) {
       console.error('保存エラー:', error)
+      isLocalUpdate.current = false
       if (showMessage) showToast('❌ 保存失敗')
     } else {
       if (showMessage) showToast('💾 保存しました')
@@ -354,6 +412,13 @@ export default function Home() {
       <div className="team-header">
         <div className="liberal-badge">LIBERAL</div>
         <div className="lions-main">Lions</div>
+        <div className="sync-status" style={{
+          fontSize: '0.7em',
+          marginTop: '5px',
+          color: syncStatus === 'connected' ? '#90ee90' : '#ff9999'
+        }}>
+          {syncStatus === 'connected' ? '🟢 リアルタイム同期中' : '🔴 接続待機中'}
+        </div>
       </div>
 
       {/* タブ */}
