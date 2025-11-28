@@ -475,4 +475,10 @@ button {
     max-width: 100px;
     font-size: 0.9em;
   }
+
+  .name-box-wide {
+    flex-grow: 1;
+    max-width: none;
+    min-width: 0;
+  }
 }
