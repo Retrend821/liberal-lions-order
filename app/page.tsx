@@ -36,18 +36,23 @@ type OrderData = {
 }
 
 const POSITION_CLASSES: { [key: string]: string } = {
-  "中": "bg-green-300", "左": "bg-green-300", "右": "bg-green-300",
-  "二": "bg-yellow-300", "三": "bg-yellow-300", "一": "bg-yellow-300", "遊": "bg-yellow-300",
-  "捕": "bg-blue-300", "投": "bg-red-300", "DH": "bg-purple-300"
+  "中": "pos-outfield", "左": "pos-outfield", "右": "pos-outfield",
+  "二": "pos-infield", "三": "pos-infield", "一": "pos-infield", "遊": "pos-infield",
+  "捕": "pos-catcher", "投": "pos-pitcher", "DH": "pos-dh"
 }
 
 const FACE_OPTIONS = [
-  { emoji: '🤩', label: '絶好調', class: 'bg-pink-400' },
-  { emoji: '😊', label: '好調', class: 'bg-red-400' },
-  { emoji: '😐', label: 'ふつう', class: 'bg-yellow-400' },
-  { emoji: '😰', label: '不調', class: 'bg-blue-400' },
-  { emoji: '🤢', label: '絶不調', class: 'bg-purple-400' }
+  { emoji: '🤩', label: '絶好調', class: 'face-excellent' },
+  { emoji: '😊', label: '好調', class: 'face-good' },
+  { emoji: '😐', label: 'ふつう', class: 'face-normal' },
+  { emoji: '😰', label: '不調', class: 'face-bad' },
+  { emoji: '🤢', label: '絶不調', class: 'face-terrible' }
 ]
+
+const getFaceClass = (emoji: string) => {
+  const face = FACE_OPTIONS.find(f => f.emoji === emoji)
+  return face ? face.class : ''
+}
 
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>([])
@@ -69,18 +74,15 @@ export default function Home() {
   const [openFaceDropdown, setOpenFaceDropdown] = useState<string | null>(null)
   const [dataId, setDataId] = useState<string | null>(null)
 
-  // 初回読み込み
   useEffect(() => {
     loadData()
   }, [])
 
-  // 保存トースト表示
   const showToast = (message: string) => {
     setToast(message)
     setTimeout(() => setToast(null), 2000)
   }
 
-  // データ読み込み
   const loadData = async () => {
     setLoading(true)
     const { data, error } = await supabase
@@ -107,7 +109,6 @@ export default function Home() {
     setLoading(false)
   }
 
-  // データ保存
   const saveData = async (showMessage = true) => {
     if (!dataId) return
 
@@ -131,7 +132,6 @@ export default function Home() {
     }
   }
 
-  // 選手追加
   const addPlayer = () => {
     if (!playerName.trim()) {
       alert('選手名を入力してください')
@@ -146,7 +146,6 @@ export default function Home() {
     setPlayerName('')
   }
 
-  // 控えピッチャー追加
   const addBenchPitcher = () => {
     if (!benchPitcherName.trim()) {
       alert('控え投手名を入力してください')
@@ -156,7 +155,6 @@ export default function Home() {
     setBenchPitcherName('')
   }
 
-  // 控えキャッチャー追加
   const addBenchCatcher = () => {
     if (!benchCatcherName.trim()) {
       alert('控え捕手名を入力してください')
@@ -166,7 +164,6 @@ export default function Home() {
     setBenchCatcherName('')
   }
 
-  // 選手削除
   const deletePlayer = (index: number) => {
     if (confirm(`${players[index].name}を削除しますか？`)) {
       const newPlayers = players.filter((_, i) => i !== index)
@@ -184,7 +181,6 @@ export default function Home() {
     }
   }
 
-  // 選手移動
   const movePlayer = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1
     if (newIndex < 0 || newIndex >= players.length) return
@@ -201,14 +197,12 @@ export default function Home() {
     setGameState({ ...gameState, battingStats: newBattingStats })
   }
 
-  // ポジション変更
   const changePosition = (index: number, newPos: string) => {
     const newPlayers = [...players]
     newPlayers[index].pos = newPos
     setPlayers(newPlayers)
   }
 
-  // 顔変更
   const changeFace = (index: number, newFace: string, type: 'player' | 'pitcher' | 'catcher') => {
     if (type === 'player') {
       const newPlayers = [...players]
@@ -226,7 +220,6 @@ export default function Home() {
     setOpenFaceDropdown(null)
   }
 
-  // 打撃結果更新
   const updateBattingResult = (playerIndex: number, atBatIndex: number, result: string) => {
     const newBattingStats = { ...gameState.battingStats }
     if (!newBattingStats[playerIndex]) {
@@ -236,13 +229,11 @@ export default function Home() {
     const stats = { ...newBattingStats[playerIndex] }
     const oldResult = stats.results[atBatIndex]
 
-    // 古い結果を取り消し
     if (oldResult) {
       const oldNormalized = normalizeResult(oldResult)
       updateStatsForResult(stats, oldNormalized, -1)
     }
 
-    // 新しい結果を反映
     stats.results[atBatIndex] = result
     if (result.trim()) {
       const normalized = normalizeResult(result)
@@ -257,7 +248,6 @@ export default function Home() {
     setGameState({ ...gameState, battingStats: newBattingStats })
   }
 
-  // 結果を正規化
   const normalizeResult = (text: string): string => {
     if (!text.trim()) return ''
     const t = text.toLowerCase().trim()
@@ -278,7 +268,6 @@ export default function Home() {
     return 'custom'
   }
 
-  // 統計更新
   const updateStatsForResult = (stats: BattingStats, result: string, multiplier: number) => {
     const nonAtBatResults = ['walk', 'hbp', 'sacrifice_bunt', 'sacrifice_fly']
     const hitResults = ['hit', '2hit', '3hit', 'homerun']
@@ -294,7 +283,6 @@ export default function Home() {
     }
   }
 
-  // チーム統計計算
   const getTeamStats = () => {
     let totalHits = 0
     let totalAtBats = 0
@@ -314,7 +302,6 @@ export default function Home() {
     return { totalHits, totalAtBats, totalWalks, avg, obp }
   }
 
-  // 試合リセット
   const resetGame = () => {
     if (confirm('試合記録をリセットしますか？')) {
       const newBattingStats: { [key: number]: BattingStats } = {}
@@ -330,7 +317,6 @@ export default function Home() {
     }
   }
 
-  // 全削除
   const clearAll = async () => {
     if (confirm('全てのデータを削除しますか？')) {
       setPlayers([])
@@ -345,7 +331,6 @@ export default function Home() {
     }
   }
 
-  // 自動保存
   useEffect(() => {
     if (!loading && dataId) {
       const timer = setTimeout(() => {
@@ -356,262 +341,274 @@ export default function Home() {
   }, [players, benchPitchers, benchCatchers, gameState])
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex items-center justify-center">
-        <div className="text-xl font-bold">読み込み中...</div>
-      </div>
-    )
+    return <div className="loading">処理中...</div>
   }
 
   const teamStats = getTeamStats()
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white p-4" onClick={() => setOpenFaceDropdown(null)}>
-      {/* トースト */}
-      {toast && (
-        <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg font-bold z-50">
-          {toast}
-        </div>
-      )}
+    <div onClick={() => setOpenFaceDropdown(null)}>
+      {toast && <div className="save-toast">{toast}</div>}
 
       {/* ヘッダー */}
-      <div className="max-w-md mx-auto mb-4">
-        <div className="bg-gradient-to-br from-blue-900 to-blue-950 border-4 border-white rounded-2xl p-5 text-center shadow-lg">
-          <span className="inline-block bg-red-600 text-white px-4 py-1 rounded-full text-sm font-bold mb-2 border-2 border-white">
-            LIBERAL
-          </span>
-          <div className="text-4xl font-black text-white italic" style={{ textShadow: '3px 3px 0 #dc143c' }}>
-            Lions
-          </div>
-        </div>
+      <div className="team-header">
+        <div className="liberal-badge">LIBERAL</div>
+        <div className="lions-main">Lions</div>
       </div>
 
       {/* タブ */}
-      <div className="max-w-md mx-auto flex bg-white rounded-t-xl overflow-hidden shadow">
+      <div className="tab-container">
         <button
+          type="button"
+          className={`tab ${currentTab === 'order' ? 'active' : ''}`}
           onClick={() => setCurrentTab('order')}
-          className={`flex-1 py-3 font-bold transition ${currentTab === 'order' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
         >
           オーダー編集
         </button>
         <button
+          type="button"
+          className={`tab ${currentTab === 'game' ? 'active' : ''}`}
           onClick={() => setCurrentTab('game')}
-          className={`flex-1 py-3 font-bold transition ${currentTab === 'game' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
         >
           試合記録
         </button>
       </div>
 
       {/* メインコンテンツ */}
-      <div className="max-w-md mx-auto bg-white border-4 border-blue-600 rounded-b-2xl p-4">
+      <div className="order-box">
         {currentTab === 'order' ? (
           <>
-            {/* オーダー編集タブ */}
-            <div className="bg-blue-600 text-white text-center py-2 rounded-lg font-bold mb-4">
-              スターティングオーダー
-            </div>
+            <div className="title">スターティングオーダー</div>
 
             {/* 選手追加フォーム */}
-            <div className="flex gap-2 justify-center mb-4">
-              <input
-                type="text"
-                placeholder="選手名"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addPlayer()}
-                className="border-2 border-gray-300 rounded-lg px-3 py-2 w-32"
-              />
-              <select
-                value={playerPos}
-                onChange={(e) => setPlayerPos(e.target.value)}
-                className="border-2 border-gray-300 rounded-lg px-2 py-2"
-              >
-                {['投', '捕', '一', '二', '三', '遊', '左', '中', '右', 'DH'].map(pos => (
-                  <option key={pos} value={pos}>{pos}</option>
-                ))}
-              </select>
-              <button
-                onClick={addPlayer}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold"
-              >
-                追加
-              </button>
+            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="選手名"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addPlayer()}
+                  style={{ width: '150px' }}
+                />
+                <select
+                  value={playerPos}
+                  onChange={(e) => setPlayerPos(e.target.value)}
+                  style={{ width: '80px' }}
+                >
+                  {['投', '捕', '一', '二', '三', '遊', '左', '中', '右', 'DH'].map(pos => (
+                    <option key={pos} value={pos}>{pos}</option>
+                  ))}
+                </select>
+                <button type="button" onClick={addPlayer}>追加</button>
+              </div>
             </div>
 
             {/* 選手リスト */}
-            <div className="space-y-2 mb-4">
+            <div>
               {players.length === 0 ? (
-                <div className="text-center text-gray-500 py-4">選手が登録されていません</div>
+                <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>選手が登録されていません</div>
               ) : (
                 players.map((player, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                      {index + 1}
-                    </div>
-                    <div className={`flex-1 px-3 py-2 rounded-xl font-bold text-center ${POSITION_CLASSES[player.pos] || 'bg-gray-200'}`}>
+                  <div key={index} className="player-row">
+                    <div className="number">{index + 1}</div>
+                    <div className={`name-box ${POSITION_CLASSES[player.pos] || ''}`}>
                       {player.name}
                     </div>
-                    <div className="relative" onClick={(e) => e.stopPropagation()}>
-                      <button
+                    <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className={`face-box ${getFaceClass(player.face)}`}
                         onClick={() => setOpenFaceDropdown(openFaceDropdown === `player-${index}` ? null : `player-${index}`)}
-                        className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg"
                       >
                         {player.face}
-                      </button>
-                      {openFaceDropdown === `player-${index}` && (
-                        <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-300 rounded-xl p-2 shadow-lg z-10 flex flex-col gap-1">
-                          {FACE_OPTIONS.map(face => (
-                            <button
-                              key={face.emoji}
-                              onClick={() => changeFace(index, face.emoji, 'player')}
-                              className={`w-10 h-10 rounded-full ${face.class} flex items-center justify-center text-xl`}
-                              title={face.label}
-                            >
-                              {face.emoji}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                      </div>
+                      <div className={`face-dropdown ${openFaceDropdown === `player-${index}` ? 'show' : ''}`}>
+                        {FACE_OPTIONS.map(face => (
+                          <div
+                            key={face.emoji}
+                            className={`face-option ${face.class}`}
+                            onClick={() => changeFace(index, face.emoji, 'player')}
+                            title={face.label}
+                          >
+                            {face.emoji}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <select
+                      className="pos-select"
                       value={player.pos}
                       onChange={(e) => changePosition(index, e.target.value)}
-                      className={`border-2 rounded-lg px-2 py-1 font-bold ${POSITION_CLASSES[player.pos] || 'bg-gray-200'}`}
                     >
                       {['投', '捕', '一', '二', '三', '遊', '左', '中', '右', 'DH'].map(pos => (
                         <option key={pos} value={pos}>{pos}</option>
                       ))}
                     </select>
-                    <button onClick={() => movePlayer(index, 'up')} className="w-8 h-8 bg-gray-600 text-white rounded font-bold">↑</button>
-                    <button onClick={() => movePlayer(index, 'down')} className="w-8 h-8 bg-gray-600 text-white rounded font-bold">↓</button>
-                    <button onClick={() => deletePlayer(index)} className="w-8 h-8 bg-red-500 text-white rounded font-bold">×</button>
+                    <button className="btn btn-move" onClick={() => movePlayer(index, 'up')}>↑</button>
+                    <button className="btn btn-move" onClick={() => movePlayer(index, 'down')}>↓</button>
+                    <button className="btn delete-btn" onClick={() => deletePlayer(index)}>×</button>
                   </div>
                 ))
               )}
             </div>
 
             {/* 控えピッチャー */}
-            <div className="bg-gray-600 text-white text-center py-2 rounded-lg font-bold mb-2">控えピッチャー</div>
-            <div className="flex gap-2 justify-center mb-2">
-              <input
-                type="text"
-                placeholder="控え投手名"
-                value={benchPitcherName}
-                onChange={(e) => setBenchPitcherName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addBenchPitcher()}
-                className="border-2 border-gray-300 rounded-lg px-3 py-2 flex-1"
-              />
-              <button onClick={addBenchPitcher} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">追加</button>
+            <div className="sub-title">控えピッチャー</div>
+            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="控え投手名"
+                  value={benchPitcherName}
+                  onChange={(e) => setBenchPitcherName(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addBenchPitcher()}
+                  style={{ width: '200px' }}
+                />
+                <button type="button" onClick={addBenchPitcher}>追加</button>
+              </div>
             </div>
-            <div className="space-y-2 mb-4">
-              {benchPitchers.map((player, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg">
-                  <div className="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center font-bold text-xs">P{index + 1}</div>
-                  <div className="flex-1 px-3 py-2 rounded-xl font-bold text-center bg-red-300">{player.name}</div>
-                  <div className="relative" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => setOpenFaceDropdown(openFaceDropdown === `pitcher-${index}` ? null : `pitcher-${index}`)}
-                      className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg"
-                    >
-                      {player.face}
-                    </button>
-                    {openFaceDropdown === `pitcher-${index}` && (
-                      <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-300 rounded-xl p-2 shadow-lg z-10 flex flex-col gap-1">
+            <div>
+              {benchPitchers.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#666', padding: '10px' }}>控えピッチャーが登録されていません</div>
+              ) : (
+                benchPitchers.map((player, index) => (
+                  <div key={index} className="bench-player-row">
+                    <div className="number" style={{ background: 'linear-gradient(145deg, #666666, #444444)' }}>P{index + 1}</div>
+                    <div className="name-box pos-pitcher">{player.name}</div>
+                    <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className={`face-box ${getFaceClass(player.face)}`}
+                        onClick={() => setOpenFaceDropdown(openFaceDropdown === `pitcher-${index}` ? null : `pitcher-${index}`)}
+                      >
+                        {player.face}
+                      </div>
+                      <div className={`face-dropdown ${openFaceDropdown === `pitcher-${index}` ? 'show' : ''}`}>
                         {FACE_OPTIONS.map(face => (
-                          <button
+                          <div
                             key={face.emoji}
+                            className={`face-option ${face.class}`}
                             onClick={() => changeFace(index, face.emoji, 'pitcher')}
-                            className={`w-10 h-10 rounded-full ${face.class} flex items-center justify-center text-xl`}
                           >
                             {face.emoji}
-                          </button>
+                          </div>
                         ))}
                       </div>
-                    )}
+                    </div>
+                    <button className="btn btn-move" onClick={() => {
+                      if (index > 0) {
+                        const newBench = [...benchPitchers]
+                        ;[newBench[index - 1], newBench[index]] = [newBench[index], newBench[index - 1]]
+                        setBenchPitchers(newBench)
+                      }
+                    }}>↑</button>
+                    <button className="btn btn-move" onClick={() => {
+                      if (index < benchPitchers.length - 1) {
+                        const newBench = [...benchPitchers]
+                        ;[newBench[index + 1], newBench[index]] = [newBench[index], newBench[index + 1]]
+                        setBenchPitchers(newBench)
+                      }
+                    }}>↓</button>
+                    <button className="btn delete-btn" onClick={() => {
+                      if (confirm(`${player.name}を削除しますか？`)) {
+                        setBenchPitchers(benchPitchers.filter((_, i) => i !== index))
+                      }
+                    }}>×</button>
                   </div>
-                  <button onClick={() => {
-                    if (confirm(`${player.name}を削除しますか？`)) {
-                      setBenchPitchers(benchPitchers.filter((_, i) => i !== index))
-                    }
-                  }} className="w-8 h-8 bg-red-500 text-white rounded font-bold">×</button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* 控えキャッチャー */}
-            <div className="bg-gray-600 text-white text-center py-2 rounded-lg font-bold mb-2">控えキャッチャー</div>
-            <div className="flex gap-2 justify-center mb-2">
-              <input
-                type="text"
-                placeholder="控え捕手名"
-                value={benchCatcherName}
-                onChange={(e) => setBenchCatcherName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addBenchCatcher()}
-                className="border-2 border-gray-300 rounded-lg px-3 py-2 flex-1"
-              />
-              <button onClick={addBenchCatcher} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">追加</button>
+            <div className="sub-title">控えキャッチャー</div>
+            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="控え捕手名"
+                  value={benchCatcherName}
+                  onChange={(e) => setBenchCatcherName(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addBenchCatcher()}
+                  style={{ width: '200px' }}
+                />
+                <button type="button" onClick={addBenchCatcher}>追加</button>
+              </div>
             </div>
-            <div className="space-y-2 mb-4">
-              {benchCatchers.map((player, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg">
-                  <div className="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center font-bold text-xs">C{index + 1}</div>
-                  <div className="flex-1 px-3 py-2 rounded-xl font-bold text-center bg-blue-300">{player.name}</div>
-                  <div className="relative" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => setOpenFaceDropdown(openFaceDropdown === `catcher-${index}` ? null : `catcher-${index}`)}
-                      className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg"
-                    >
-                      {player.face}
-                    </button>
-                    {openFaceDropdown === `catcher-${index}` && (
-                      <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-gray-300 rounded-xl p-2 shadow-lg z-10 flex flex-col gap-1">
+            <div>
+              {benchCatchers.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#666', padding: '10px' }}>控えキャッチャーが登録されていません</div>
+              ) : (
+                benchCatchers.map((player, index) => (
+                  <div key={index} className="bench-player-row">
+                    <div className="number" style={{ background: 'linear-gradient(145deg, #666666, #444444)' }}>C{index + 1}</div>
+                    <div className="name-box pos-catcher">{player.name}</div>
+                    <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className={`face-box ${getFaceClass(player.face)}`}
+                        onClick={() => setOpenFaceDropdown(openFaceDropdown === `catcher-${index}` ? null : `catcher-${index}`)}
+                      >
+                        {player.face}
+                      </div>
+                      <div className={`face-dropdown ${openFaceDropdown === `catcher-${index}` ? 'show' : ''}`}>
                         {FACE_OPTIONS.map(face => (
-                          <button
+                          <div
                             key={face.emoji}
+                            className={`face-option ${face.class}`}
                             onClick={() => changeFace(index, face.emoji, 'catcher')}
-                            className={`w-10 h-10 rounded-full ${face.class} flex items-center justify-center text-xl`}
                           >
                             {face.emoji}
-                          </button>
+                          </div>
                         ))}
                       </div>
-                    )}
+                    </div>
+                    <button className="btn btn-move" onClick={() => {
+                      if (index > 0) {
+                        const newBench = [...benchCatchers]
+                        ;[newBench[index - 1], newBench[index]] = [newBench[index], newBench[index - 1]]
+                        setBenchCatchers(newBench)
+                      }
+                    }}>↑</button>
+                    <button className="btn btn-move" onClick={() => {
+                      if (index < benchCatchers.length - 1) {
+                        const newBench = [...benchCatchers]
+                        ;[newBench[index + 1], newBench[index]] = [newBench[index], newBench[index + 1]]
+                        setBenchCatchers(newBench)
+                      }
+                    }}>↓</button>
+                    <button className="btn delete-btn" onClick={() => {
+                      if (confirm(`${player.name}を削除しますか？`)) {
+                        setBenchCatchers(benchCatchers.filter((_, i) => i !== index))
+                      }
+                    }}>×</button>
                   </div>
-                  <button onClick={() => {
-                    if (confirm(`${player.name}を削除しますか？`)) {
-                      setBenchCatchers(benchCatchers.filter((_, i) => i !== index))
-                    }
-                  }} className="w-8 h-8 bg-red-500 text-white rounded font-bold">×</button>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* ボタン */}
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => saveData(true)} className="bg-green-500 text-white py-3 rounded-lg font-bold">💾 保存</button>
-              <button onClick={loadData} className="bg-blue-500 text-white py-3 rounded-lg font-bold">📥 読込</button>
-              <button onClick={() => {
+            <div className="save-load-controls">
+              <button className="btn-save" onClick={() => saveData(true)}>💾 保存</button>
+              <button className="btn-load" onClick={loadData}>📥 読込</button>
+              <button className="btn-share" onClick={() => {
                 navigator.clipboard.writeText(window.location.href)
                 alert('URLをコピーしました！')
-              }} className="bg-orange-500 text-white py-3 rounded-lg font-bold">🔗 共有URL</button>
-              <button onClick={clearAll} className="bg-red-500 text-white py-3 rounded-lg font-bold">全削除</button>
+              }}>🔗 共有URL</button>
+              <button className="btn-clear" onClick={clearAll}>全削除</button>
             </div>
           </>
         ) : (
           <>
             {/* 試合記録タブ */}
-            <div className="bg-blue-600 text-white text-center py-2 rounded-lg font-bold mb-4">
-              試合記録
-            </div>
+            <div className="title">試合記録</div>
 
             {/* イニング表示 */}
-            <div className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3 mb-4">
-              <div className="flex justify-between items-center mb-2">
-                <div className="font-bold text-lg">
+            <div className="game-inning-box">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
                   {gameState.inning}回 {gameState.isTopHalf ? '表' : '裏'}
                 </div>
-                <div className="flex gap-2">
+                <div style={{ display: 'flex', gap: '10px' }}>
                   <button
+                    style={{ padding: '5px 10px', fontSize: '0.8em' }}
                     onClick={() => setGameState(prev => {
                       if (!prev.isTopHalf && prev.inning > 1) {
                         return { ...prev, isTopHalf: true }
@@ -620,11 +617,11 @@ export default function Home() {
                       }
                       return prev
                     })}
-                    className="bg-gray-500 text-white px-3 py-1 rounded text-sm"
                   >
                     前へ
                   </button>
                   <button
+                    style={{ padding: '5px 10px', fontSize: '0.8em' }}
                     onClick={() => setGameState(prev => {
                       if (prev.isTopHalf) {
                         return { ...prev, isTopHalf: false }
@@ -632,76 +629,84 @@ export default function Home() {
                         return { ...prev, isTopHalf: true, inning: prev.inning + 1 }
                       }
                     })}
-                    className="bg-gray-500 text-white px-3 py-1 rounded text-sm"
                   >
                     次へ
                   </button>
                 </div>
               </div>
+              <div style={{ fontSize: '0.9em', color: '#666' }}>
+                現在の打者: {players.length > 0 ? `${(gameState.currentBatterIndex % players.length) + 1}番` : '-'} {players[gameState.currentBatterIndex % players.length]?.name || '-'}
+              </div>
             </div>
 
             {/* 選手別打撃記録 */}
             {players.length === 0 ? (
-              <div className="text-center text-gray-500 py-4">
+              <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
                 選手が登録されていません<br />オーダー編集タブで選手を追加してください
               </div>
             ) : (
-              <div className="space-y-4 mb-4">
-                {players.map((player, index) => {
-                  const stats = gameState.battingStats[index] || { hits: 0, atBats: 0, walks: 0, results: [] }
-                  const avg = stats.atBats > 0 ? (stats.hits / stats.atBats).toFixed(3) : '.---'
+              players.map((player, index) => {
+                const stats = gameState.battingStats[index] || { hits: 0, atBats: 0, walks: 0, results: [] }
+                const avg = stats.atBats > 0 ? (stats.hits / stats.atBats).toFixed(3) : '.---'
 
-                  return (
-                    <div key={index} className="border-2 border-gray-300 rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                          {index + 1}
-                        </div>
-                        <div className={`px-3 py-1 rounded-xl font-bold ${POSITION_CLASSES[player.pos] || 'bg-gray-200'}`}>
-                          {player.name}
-                        </div>
-                        <div className="text-gray-600 text-sm">
-                          {stats.hits}/{stats.atBats} 打率 {avg}
-                        </div>
+                return (
+                  <div key={index} className="player-section">
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px', fontWeight: 'bold', fontSize: '1.1em', flexWrap: 'wrap', gap: '8px' }}>
+                      <div className="number" style={{ marginRight: '10px' }}>{index + 1}</div>
+                      <div className={`name-box ${POSITION_CLASSES[player.pos] || ''}`} style={{ marginRight: '15px', minWidth: '100px', maxWidth: '120px' }}>
+                        {player.name}
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[1, 2, 3, 4].map(atBat => (
-                          <div key={atBat} className="bg-gray-100 rounded-lg p-2 text-center">
-                            <div className="text-xs text-gray-600 mb-1">{atBat}打席目</div>
-                            <input
-                              type="text"
-                              placeholder="結果"
-                              value={stats.results[atBat - 1] || ''}
-                              onChange={(e) => updateBattingResult(index, atBat - 1, e.target.value)}
-                              className="w-full px-2 py-1 border rounded text-center text-sm"
-                            />
-                          </div>
-                        ))}
+                      <div style={{ color: '#666', fontSize: '0.9em' }}>
+                        {stats.hits}/{stats.atBats} 打率 {avg}
                       </div>
                     </div>
-                  )
-                })}
-              </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginTop: '10px' }}>
+                      {[1, 2, 3, 4].map(atBat => (
+                        <div key={atBat} className="at-bat-box">
+                          <div style={{ fontWeight: 'bold', color: '#495057', marginBottom: '8px', fontSize: '0.9em' }}>
+                            {atBat}打席目
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="結果入力"
+                            value={stats.results[atBat - 1] || ''}
+                            onChange={(e) => updateBattingResult(index, atBat - 1, e.target.value)}
+                            style={{ width: '100%', padding: '6px', textAlign: 'center', fontSize: '0.9em', boxSizing: 'border-box' }}
+                          />
+                          {atBat === 1 && (
+                            <div style={{ fontSize: '0.7em', color: '#999', marginTop: '4px', lineHeight: '1.2' }}>
+                              例: 三振、左安、二ゴロ<br />四球、二塁打、中飛
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })
             )}
 
             {/* チーム成績 */}
-            <div className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3 mb-4">
-              <div className="font-bold mb-2">チーム成績</div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>安打: {teamStats.totalHits}</div>
-                <div>打数: {teamStats.totalAtBats}</div>
-                <div>四球: {teamStats.totalWalks}</div>
-                <div>打率: {teamStats.avg}</div>
-                <div>出塁率: {teamStats.obp}</div>
+            <div className="stats-display">
+              <div className="stats-row">
+                <strong>チーム成績</strong>
+                <span>打率: {teamStats.avg}</span>
+              </div>
+              <div className="stats-row">
+                <span>安打: {teamStats.totalHits}</span>
+                <span>打数: {teamStats.totalAtBats}</span>
+              </div>
+              <div className="stats-row">
+                <span>四球: {teamStats.totalWalks}</span>
+                <span>出塁率: {teamStats.obp}</span>
               </div>
             </div>
 
-            <button
-              onClick={resetGame}
-              className="w-full bg-orange-500 text-white py-3 rounded-lg font-bold"
-            >
-              試合記録リセット
-            </button>
+            <div style={{ textAlign: 'center', marginTop: '15px' }}>
+              <button className="btn-reset" onClick={resetGame} style={{ padding: '8px 16px' }}>
+                試合記録リセット
+              </button>
+            </div>
           </>
         )}
       </div>
