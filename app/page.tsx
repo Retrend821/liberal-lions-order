@@ -82,6 +82,10 @@ export default function Home() {
   const [openFaceDropdown, setOpenFaceDropdown] = useState<string | null>(null)
   const [dataId, setDataId] = useState<string | null>(null)
   const [syncStatus, setSyncStatus] = useState<'connected' | 'disconnected'>('disconnected')
+  const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
+  const [selectedPitcher, setSelectedPitcher] = useState<number | null>(null)
+  const [selectedCatcher, setSelectedCatcher] = useState<number | null>(null)
+  const [selectedManager, setSelectedManager] = useState<number | null>(null)
   const channelRef = useRef<RealtimeChannel | null>(null)
   const lastSaveTime = useRef<number>(0)
 
@@ -257,20 +261,64 @@ export default function Home() {
     }
   }
 
-  const movePlayer = (index: number, direction: 'up' | 'down') => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1
-    if (newIndex < 0 || newIndex >= players.length) return
+  const handlePlayerSelect = (index: number) => {
+    if (selectedPlayer === null) {
+      setSelectedPlayer(index)
+    } else if (selectedPlayer === index) {
+      setSelectedPlayer(null)
+    } else {
+      // 入れ替え
+      const newPlayers = [...players]
+      ;[newPlayers[selectedPlayer], newPlayers[index]] = [newPlayers[index], newPlayers[selectedPlayer]]
 
-    const newPlayers = [...players]
-    ;[newPlayers[index], newPlayers[newIndex]] = [newPlayers[newIndex], newPlayers[index]]
+      const newBattingStats = { ...gameState.battingStats }
+      const tempStats = newBattingStats[selectedPlayer]
+      newBattingStats[selectedPlayer] = newBattingStats[index]
+      newBattingStats[index] = tempStats
 
-    const newBattingStats = { ...gameState.battingStats }
-    const tempStats = newBattingStats[index]
-    newBattingStats[index] = newBattingStats[newIndex]
-    newBattingStats[newIndex] = tempStats
+      setPlayers(newPlayers)
+      setGameState({ ...gameState, battingStats: newBattingStats })
+      setSelectedPlayer(null)
+    }
+  }
 
-    setPlayers(newPlayers)
-    setGameState({ ...gameState, battingStats: newBattingStats })
+  const handlePitcherSelect = (index: number) => {
+    if (selectedPitcher === null) {
+      setSelectedPitcher(index)
+    } else if (selectedPitcher === index) {
+      setSelectedPitcher(null)
+    } else {
+      const newBench = [...benchPitchers]
+      ;[newBench[selectedPitcher], newBench[index]] = [newBench[index], newBench[selectedPitcher]]
+      setBenchPitchers(newBench)
+      setSelectedPitcher(null)
+    }
+  }
+
+  const handleCatcherSelect = (index: number) => {
+    if (selectedCatcher === null) {
+      setSelectedCatcher(index)
+    } else if (selectedCatcher === index) {
+      setSelectedCatcher(null)
+    } else {
+      const newBench = [...benchCatchers]
+      ;[newBench[selectedCatcher], newBench[index]] = [newBench[index], newBench[selectedCatcher]]
+      setBenchCatchers(newBench)
+      setSelectedCatcher(null)
+    }
+  }
+
+  const handleManagerSelect = (index: number) => {
+    if (selectedManager === null) {
+      setSelectedManager(index)
+    } else if (selectedManager === index) {
+      setSelectedManager(null)
+    } else {
+      const newManagers = [...managers]
+      ;[newManagers[selectedManager], newManagers[index]] = [newManagers[index], newManagers[selectedManager]]
+      setManagers(newManagers)
+      setSelectedManager(null)
+    }
   }
 
   const changePosition = (index: number, newPos: string) => {
@@ -494,9 +542,19 @@ export default function Home() {
                 <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>選手が登録されていません</div>
               ) : (
                 players.map((player, index) => (
-                  <div key={index} className="player-row">
+                  <div
+                    key={index}
+                    className="player-row"
+                    onClick={() => handlePlayerSelect(index)}
+                    style={{
+                      cursor: 'pointer',
+                      border: selectedPlayer === index ? '3px solid #ff6600' : 'none',
+                      borderRadius: '8px',
+                      background: selectedPlayer === index ? 'rgba(255, 102, 0, 0.1)' : 'transparent'
+                    }}
+                  >
                     <div className="number">{index + 1}</div>
-                    <div className={`name-box ${POSITION_CLASSES[player.pos] || ''}`}>
+                    <div className={`name-box name-box-wide ${POSITION_CLASSES[player.pos] || ''}`}>
                       {player.name}
                     </div>
                     <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
@@ -523,14 +581,13 @@ export default function Home() {
                       className="pos-select"
                       value={player.pos}
                       onChange={(e) => changePosition(index, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       {['投', '捕', '一', '二', '三', '遊', '左', '中', '右', 'DH'].map(pos => (
                         <option key={pos} value={pos}>{pos}</option>
                       ))}
                     </select>
-                    <button className="btn btn-move" onClick={() => movePlayer(index, 'up')}>↑</button>
-                    <button className="btn btn-move" onClick={() => movePlayer(index, 'down')}>↓</button>
-                    <button className="btn delete-btn" onClick={() => deletePlayer(index)}>×</button>
+                    <button className="btn delete-btn" onClick={(e) => { e.stopPropagation(); deletePlayer(index); }}>×</button>
                   </div>
                 ))
               )}
@@ -556,9 +613,19 @@ export default function Home() {
                 <div style={{ textAlign: 'center', color: '#666', padding: '10px' }}>控えピッチャーが登録されていません</div>
               ) : (
                 benchPitchers.map((player, index) => (
-                  <div key={index} className="bench-player-row">
+                  <div
+                    key={index}
+                    className="bench-player-row"
+                    onClick={() => handlePitcherSelect(index)}
+                    style={{
+                      cursor: 'pointer',
+                      border: selectedPitcher === index ? '3px solid #ff6600' : 'none',
+                      borderRadius: '8px',
+                      background: selectedPitcher === index ? 'rgba(255, 102, 0, 0.1)' : 'rgba(240, 240, 240, 0.5)'
+                    }}
+                  >
                     <div className="number" style={{ background: 'linear-gradient(145deg, #666666, #444444)' }}>P{index + 1}</div>
-                    <div className="name-box pos-pitcher">{player.name}</div>
+                    <div className="name-box name-box-wide pos-pitcher">{player.name}</div>
                     <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
                       <div
                         className={`face-box ${getFaceClass(player.face)}`}
@@ -578,21 +645,8 @@ export default function Home() {
                         ))}
                       </div>
                     </div>
-                    <button className="btn btn-move" onClick={() => {
-                      if (index > 0) {
-                        const newBench = [...benchPitchers]
-                        ;[newBench[index - 1], newBench[index]] = [newBench[index], newBench[index - 1]]
-                        setBenchPitchers(newBench)
-                      }
-                    }}>↑</button>
-                    <button className="btn btn-move" onClick={() => {
-                      if (index < benchPitchers.length - 1) {
-                        const newBench = [...benchPitchers]
-                        ;[newBench[index + 1], newBench[index]] = [newBench[index], newBench[index + 1]]
-                        setBenchPitchers(newBench)
-                      }
-                    }}>↓</button>
-                    <button className="btn delete-btn" onClick={() => {
+                    <button className="btn delete-btn" onClick={(e) => {
+                      e.stopPropagation()
                       if (confirm(`${player.name}を削除しますか？`)) {
                         setBenchPitchers(benchPitchers.filter((_, i) => i !== index))
                       }
@@ -622,9 +676,19 @@ export default function Home() {
                 <div style={{ textAlign: 'center', color: '#666', padding: '10px' }}>控えキャッチャーが登録されていません</div>
               ) : (
                 benchCatchers.map((player, index) => (
-                  <div key={index} className="bench-player-row">
+                  <div
+                    key={index}
+                    className="bench-player-row"
+                    onClick={() => handleCatcherSelect(index)}
+                    style={{
+                      cursor: 'pointer',
+                      border: selectedCatcher === index ? '3px solid #ff6600' : 'none',
+                      borderRadius: '8px',
+                      background: selectedCatcher === index ? 'rgba(255, 102, 0, 0.1)' : 'rgba(240, 240, 240, 0.5)'
+                    }}
+                  >
                     <div className="number" style={{ background: 'linear-gradient(145deg, #666666, #444444)' }}>C{index + 1}</div>
-                    <div className="name-box pos-catcher">{player.name}</div>
+                    <div className="name-box name-box-wide pos-catcher">{player.name}</div>
                     <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
                       <div
                         className={`face-box ${getFaceClass(player.face)}`}
@@ -644,21 +708,8 @@ export default function Home() {
                         ))}
                       </div>
                     </div>
-                    <button className="btn btn-move" onClick={() => {
-                      if (index > 0) {
-                        const newBench = [...benchCatchers]
-                        ;[newBench[index - 1], newBench[index]] = [newBench[index], newBench[index - 1]]
-                        setBenchCatchers(newBench)
-                      }
-                    }}>↑</button>
-                    <button className="btn btn-move" onClick={() => {
-                      if (index < benchCatchers.length - 1) {
-                        const newBench = [...benchCatchers]
-                        ;[newBench[index + 1], newBench[index]] = [newBench[index], newBench[index + 1]]
-                        setBenchCatchers(newBench)
-                      }
-                    }}>↓</button>
-                    <button className="btn delete-btn" onClick={() => {
+                    <button className="btn delete-btn" onClick={(e) => {
+                      e.stopPropagation()
                       if (confirm(`${player.name}を削除しますか？`)) {
                         setBenchCatchers(benchCatchers.filter((_, i) => i !== index))
                       }
@@ -688,24 +739,21 @@ export default function Home() {
                 <div style={{ textAlign: 'center', color: '#666', padding: '10px' }}>マネージャーが登録されていません</div>
               ) : (
                 managers.map((manager, index) => (
-                  <div key={index} className="bench-player-row">
+                  <div
+                    key={index}
+                    className="bench-player-row"
+                    onClick={() => handleManagerSelect(index)}
+                    style={{
+                      cursor: 'pointer',
+                      border: selectedManager === index ? '3px solid #ff6600' : 'none',
+                      borderRadius: '8px',
+                      background: selectedManager === index ? 'rgba(255, 102, 0, 0.1)' : 'rgba(240, 240, 240, 0.5)'
+                    }}
+                  >
                     <div className="number" style={{ background: 'linear-gradient(145deg, #e91e63, #c2185b)' }}>M{index + 1}</div>
-                    <div className="name-box" style={{ background: 'linear-gradient(145deg, #fce4ec, #f8bbd9)', borderColor: '#f48fb1' }}>{manager.name}</div>
-                    <button className="btn btn-move" onClick={() => {
-                      if (index > 0) {
-                        const newManagers = [...managers]
-                        ;[newManagers[index - 1], newManagers[index]] = [newManagers[index], newManagers[index - 1]]
-                        setManagers(newManagers)
-                      }
-                    }}>↑</button>
-                    <button className="btn btn-move" onClick={() => {
-                      if (index < managers.length - 1) {
-                        const newManagers = [...managers]
-                        ;[newManagers[index + 1], newManagers[index]] = [newManagers[index], newManagers[index + 1]]
-                        setManagers(newManagers)
-                      }
-                    }}>↓</button>
-                    <button className="btn delete-btn" onClick={() => {
+                    <div className="name-box name-box-wide" style={{ background: 'linear-gradient(145deg, #fce4ec, #f8bbd9)', borderColor: '#f48fb1' }}>{manager.name}</div>
+                    <button className="btn delete-btn" onClick={(e) => {
+                      e.stopPropagation()
                       if (confirm(`${manager.name}を削除しますか？`)) {
                         setManagers(managers.filter((_, i) => i !== index))
                       }
