@@ -17,6 +17,7 @@ type BenchPlayer = {
 
 type Manager = {
   name: string
+  face: string
 }
 
 type BattingStats = {
@@ -240,7 +241,7 @@ export default function Home() {
       alert('マネージャー名を入力してください')
       return
     }
-    setManagers([...managers, { name: managerName.trim() }])
+    setManagers([...managers, { name: managerName.trim(), face: '😊' }])
     setManagerName('')
   }
 
@@ -327,7 +328,7 @@ export default function Home() {
     setPlayers(newPlayers)
   }
 
-  const changeFace = (index: number, newFace: string, type: 'player' | 'pitcher' | 'catcher') => {
+  const changeFace = (index: number, newFace: string, type: 'player' | 'pitcher' | 'catcher' | 'manager') => {
     if (type === 'player') {
       const newPlayers = [...players]
       newPlayers[index].face = newFace
@@ -336,10 +337,14 @@ export default function Home() {
       const newBench = [...benchPitchers]
       newBench[index].face = newFace
       setBenchPitchers(newBench)
-    } else {
+    } else if (type === 'catcher') {
       const newBench = [...benchCatchers]
       newBench[index].face = newFace
       setBenchCatchers(newBench)
+    } else {
+      const newManagers = [...managers]
+      newManagers[index].face = newFace
+      setManagers(newManagers)
     }
     setOpenFaceDropdown(null)
   }
@@ -752,6 +757,25 @@ export default function Home() {
                   >
                     <div className="number" style={{ background: 'linear-gradient(145deg, #e91e63, #c2185b)' }}>M{index + 1}</div>
                     <div className="name-box name-box-wide" style={{ background: 'linear-gradient(145deg, #fce4ec, #f8bbd9)', borderColor: '#f48fb1' }}>{manager.name}</div>
+                    <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className={`face-box ${getFaceClass(manager.face)}`}
+                        onClick={() => setOpenFaceDropdown(openFaceDropdown === `manager-${index}` ? null : `manager-${index}`)}
+                      >
+                        {manager.face}
+                      </div>
+                      <div className={`face-dropdown ${openFaceDropdown === `manager-${index}` ? 'show' : ''}`}>
+                        {FACE_OPTIONS.map(face => (
+                          <div
+                            key={face.emoji}
+                            className={`face-option ${face.class}`}
+                            onClick={() => changeFace(index, face.emoji, 'manager')}
+                          >
+                            {face.emoji}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                     <button className="btn delete-btn" onClick={(e) => {
                       e.stopPropagation()
                       if (confirm(`${manager.name}を削除しますか？`)) {
