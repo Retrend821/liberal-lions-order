@@ -15,6 +15,10 @@ type BenchPlayer = {
   face: string
 }
 
+type Manager = {
+  name: string
+}
+
 type BattingStats = {
   hits: number
   atBats: number
@@ -33,6 +37,7 @@ type OrderData = {
   players: Player[]
   benchPitchers: BenchPlayer[]
   benchCatchers: BenchPlayer[]
+  managers: Manager[]
   gameState: GameState
 }
 
@@ -59,6 +64,7 @@ export default function Home() {
   const [players, setPlayers] = useState<Player[]>([])
   const [benchPitchers, setBenchPitchers] = useState<BenchPlayer[]>([])
   const [benchCatchers, setBenchCatchers] = useState<BenchPlayer[]>([])
+  const [managers, setManagers] = useState<Manager[]>([])
   const [gameState, setGameState] = useState<GameState>({
     inning: 1,
     isTopHalf: true,
@@ -70,6 +76,7 @@ export default function Home() {
   const [playerPos, setPlayerPos] = useState('投')
   const [benchPitcherName, setBenchPitcherName] = useState('')
   const [benchCatcherName, setBenchCatcherName] = useState('')
+  const [managerName, setManagerName] = useState('')
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState<string | null>(null)
   const [openFaceDropdown, setOpenFaceDropdown] = useState<string | null>(null)
@@ -104,6 +111,7 @@ export default function Home() {
             setPlayers(newData.data.players || [])
             setBenchPitchers(newData.data.benchPitchers || [])
             setBenchCatchers(newData.data.benchCatchers || [])
+            setManagers(newData.data.managers || [])
             setGameState(newData.data.gameState || {
               inning: 1,
               isTopHalf: true,
@@ -153,6 +161,7 @@ export default function Home() {
       setPlayers(orderData.players || [])
       setBenchPitchers(orderData.benchPitchers || [])
       setBenchCatchers(orderData.benchCatchers || [])
+      setManagers(orderData.managers || [])
       setGameState(orderData.gameState || {
         inning: 1,
         isTopHalf: true,
@@ -173,6 +182,7 @@ export default function Home() {
       players,
       benchPitchers,
       benchCatchers,
+      managers,
       gameState
     }
 
@@ -219,6 +229,15 @@ export default function Home() {
     }
     setBenchCatchers([...benchCatchers, { name: benchCatcherName.trim(), face: '😊' }])
     setBenchCatcherName('')
+  }
+
+  const addManager = () => {
+    if (!managerName.trim()) {
+      alert('マネージャー名を入力してください')
+      return
+    }
+    setManagers([...managers, { name: managerName.trim() }])
+    setManagerName('')
   }
 
   const deletePlayer = (index: number) => {
@@ -379,6 +398,7 @@ export default function Home() {
       setPlayers([])
       setBenchPitchers([])
       setBenchCatchers([])
+      setManagers([])
       setGameState({
         inning: 1,
         isTopHalf: true,
@@ -395,7 +415,7 @@ export default function Home() {
       }, 1000)
       return () => clearTimeout(timer)
     }
-  }, [players, benchPitchers, benchCatchers, gameState])
+  }, [players, benchPitchers, benchCatchers, managers, gameState])
 
   if (loading) {
     return <div className="loading">処理中...</div>
@@ -641,6 +661,53 @@ export default function Home() {
                     <button className="btn delete-btn" onClick={() => {
                       if (confirm(`${player.name}を削除しますか？`)) {
                         setBenchCatchers(benchCatchers.filter((_, i) => i !== index))
+                      }
+                    }}>×</button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* マネージャー */}
+            <div className="sub-title">マネージャー</div>
+            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="マネージャー名"
+                  value={managerName}
+                  onChange={(e) => setManagerName(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addManager()}
+                  style={{ width: '200px' }}
+                />
+                <button type="button" onClick={addManager}>追加</button>
+              </div>
+            </div>
+            <div>
+              {managers.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#666', padding: '10px' }}>マネージャーが登録されていません</div>
+              ) : (
+                managers.map((manager, index) => (
+                  <div key={index} className="bench-player-row">
+                    <div className="number" style={{ background: 'linear-gradient(145deg, #e91e63, #c2185b)' }}>M{index + 1}</div>
+                    <div className="name-box" style={{ background: 'linear-gradient(145deg, #fce4ec, #f8bbd9)', borderColor: '#f48fb1' }}>{manager.name}</div>
+                    <button className="btn btn-move" onClick={() => {
+                      if (index > 0) {
+                        const newManagers = [...managers]
+                        ;[newManagers[index - 1], newManagers[index]] = [newManagers[index], newManagers[index - 1]]
+                        setManagers(newManagers)
+                      }
+                    }}>↑</button>
+                    <button className="btn btn-move" onClick={() => {
+                      if (index < managers.length - 1) {
+                        const newManagers = [...managers]
+                        ;[newManagers[index + 1], newManagers[index]] = [newManagers[index], newManagers[index + 1]]
+                        setManagers(newManagers)
+                      }
+                    }}>↓</button>
+                    <button className="btn delete-btn" onClick={() => {
+                      if (confirm(`${manager.name}を削除しますか？`)) {
+                        setManagers(managers.filter((_, i) => i !== index))
                       }
                     }}>×</button>
                   </div>
