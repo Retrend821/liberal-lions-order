@@ -76,7 +76,7 @@ export default function Home() {
   const [dataId, setDataId] = useState<string | null>(null)
   const [syncStatus, setSyncStatus] = useState<'connected' | 'disconnected'>('disconnected')
   const channelRef = useRef<RealtimeChannel | null>(null)
-  const isLocalUpdate = useRef(false)
+  const lastSaveTime = useRef<number>(0)
 
   useEffect(() => {
     loadData()
@@ -92,9 +92,9 @@ export default function Home() {
           table: 'order_data'
         },
         (payload) => {
-          // 自分の更新は無視
-          if (isLocalUpdate.current) {
-            isLocalUpdate.current = false
+          // 自分の更新から2秒以内は無視（自分の更新の反映を防ぐ）
+          const now = Date.now()
+          if (now - lastSaveTime.current < 2000) {
             return
           }
 
@@ -166,8 +166,8 @@ export default function Home() {
   const saveData = async (showMessage = true) => {
     if (!dataId) return
 
-    // 自分の更新をマーク
-    isLocalUpdate.current = true
+    // 自分の更新時刻を記録
+    lastSaveTime.current = Date.now()
 
     const orderData: OrderData = {
       players,
@@ -183,7 +183,6 @@ export default function Home() {
 
     if (error) {
       console.error('保存エラー:', error)
-      isLocalUpdate.current = false
       if (showMessage) showToast('❌ 保存失敗')
     } else {
       if (showMessage) showToast('💾 保存しました')
