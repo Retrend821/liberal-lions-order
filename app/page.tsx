@@ -597,6 +597,7 @@ export default function Home() {
                       value={player.pos}
                       onChange={(e) => changePosition(index, e.target.value)}
                       onClick={(e) => e.stopPropagation()}
+                      style={POSITION_STYLES[player.pos] || {}}
                     >
                       {['投', '捕', '一', '二', '三', '遊', '左', '中', '右', 'DH'].map(pos => (
                         <option key={pos} value={pos}>{pos}</option>
